@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pansy.pojo" >
+    <resultMap id="productBean" type="Product">
+        <id column="pid" property="id" />
+        <result column="pname" property="name" />
+        <result column="price" property="price" />
+        <association property="category" javaType="Category">
+            <id column="cid" property="id" />
+            <result column="cname" property="name" />
+        </association>
+    </resultMap>
+
+    <select id="listProduct" resultMap="productBean">
+        select p.id pid, p.name pname, p.price, c.id cid, c.name cname
+        from product_ p left join category_ c on p.cid = c.id
+    </select>
+
+    <update id="updateProduct" parameterType="Product">
+        update product_ set cid = #{category.id} where id = #{id}
+    </update>
+
+    <select id="getProduct" resultMap="productBean">
+        select p.id pid, p.name pname, p.price, c.id cid, c.name cname
+        from product_ p left join category_ c on p.cid = c.id
+        where p.id = #{id}
+    </select>
+</mapper>
