@@ -15,8 +15,7 @@
     </resultMap>
 
     <select id="listProduct" resultMap="productBean">
-        select p.id pid, p.name pname, p.price, c.id cid, c.name cname
-        from product_ p left join category_ c on p.cid = c.id
+        select p.id 'pid', p.name 'pname', p.price, c.id 'cid', c.name 'cname' from product_ p left join category_ c on p.cid = c.id
     </select>
 
     <update id="updateProduct" parameterType="Product">
@@ -27,5 +26,65 @@
         select p.id pid, p.name pname, p.price, c.id cid, c.name cname
         from product_ p left join category_ c on p.cid = c.id
         where p.id = #{id}
+    </select>
+
+    <select id="listProduct2" parameterType="map" resultMap="productBean">
+        select p.id pid, p.name pname, p.price, c.id cid, c.name cname
+        from product_ p left join category_ c on p.cid = c.id
+        <if test="name!=null">
+            where p.name like concat('%', #{name}, '%')
+        </if>
+    </select>
+
+    <select id="listProduct3" parameterType="map" resultMap="productBean">
+        select p.id pid, p.name pname, p.price, c.id cid, c.name cname
+        from product_ p left join category_ c on p.cid = c.id
+        <where>
+            <if test="name!=null">
+                and p.name like concat('%', #{name}, '%')
+            </if>
+            <if test="price!=null and price!=0">
+                and p.price > #{price}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateProduct2" parameterType="Product">
+        update product_
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="price != null and price != 0">price = #{price},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="listProduct4" resultType="Product">
+        select * from product_
+        <where>
+            <choose>
+                <when test="name != null">
+                    and name like concat('%', #{name}, '%')
+                </when>
+                <when test="price != null and price != 0">
+                    and price > #{price}
+                </when>
+                <otherwise>
+                    and id > 1
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="listProduct5" resultType="Product">
+        select * from product_
+        where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="listProduct6" resultType="Product">
+        <bind name="likename" value="'%' + name + '%'" />
+        select * from product_ where name like #{likename}
     </select>
 </mapper>
