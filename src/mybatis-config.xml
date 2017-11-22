@@ -22,5 +22,10 @@
         <mapper resource="com/pansy/mapping/Product.xml" />
         <mapper resource="com/pansy/mapping/Order.xml" />
         <mapper resource="com/pansy/mapping/OrderItem.xml"/>
+        <!-- annotation way -->
+        <mapper class="com.pansy.mapper.CategoryMapper" />
+        <mapper class="com.pansy.mapper.ProductMapper" />
+        <mapper class="com.pansy.mapper.OrderItemMapper" />
+        <mapper class="com.pansy.mapper.OrderMapper" />
     </mappers>
 </configuration>
