@@ -33,7 +33,7 @@ public class TestMyBatis3 {
 //        mapper.add(category);
 
         //delete
-//        mapper.delete(3);
+//        mapper.delete(6);
 
         //get
 //        Category category = mapper.get(2);
@@ -68,7 +68,7 @@ public class TestMyBatis3 {
 //            System.out.println(order);
 
         //dynamic sql
-        System.out.println(selectPersonSql());
+//        System.out.println(selectPersonSql());
 
         sqlSession.commit();
         sqlSession.close();

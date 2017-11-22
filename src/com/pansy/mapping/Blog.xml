@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<resultMap id="detailedBlogResultMap" type="Blog">
+    <constructor>
+        <idArg column="blog_id" javaType="int"/>
+        <arg column="username" javaType="string" />
+    </constructor>
+    <result property="title" column="blog_title" />
+    <association property="author" javaType="author">
+        <id property="id" column="author_id" />
+        <result property="username" column="author_name" />
+        <result property="email" column="author_email" />
+        <result property="bio" column="author_bio" />
+        <result property="favouriteSection" column="author_favourite_section" />
+    </association>
+    <collection></collection>
+</resultMap>
+
+<!-- 嵌套查询
+<resultMap id="blogResult" type="Blog">
+    <association property="author" column="author_id" javaType="Author" select="selectAuthor" />
+</resultMap>
+
+<select id="selectAuthor" resultType="Author">
+  select * from author where id = #{id}
+</select>
+-->
+
+<!-- 嵌套结果
+<resultMap id="blogResult" type="Blog">
+    <id property="id" column="blog_id" />
+    <result property="title" column="blog_title" />
+    <association property="author" column="blog_author_id" javaType="Author" resultMap="authorResult" />
+</resultMap>
+
+<resultMap id="authorResult" type="Author">
+    <id property="id" column="author_id" />
+    <result property="username" column="author_name" />
+    <result property="password" column="author_password" />
+    <result property="email" column="author_email" />
+    <result property="bio" column="author_bio" />
+</resultMap>
+
+<select id="selectBlog" resultMap="blogResult">
+  select
+    B.id            as blog_id,
+    B.title         as blog_title,
+    A.id            as author_id,
+    A.username      as author_username,
+    A.password      as author_password,
+    A.email         as author_email,
+    A.bio           as author_bio,
+    CA.id           as co_author_id,
+    CA.username     as co_author_username,
+    CA.password     as co_author_password,
+    CA.email        as co_author_email,
+    CA.bio          as co_author_bio
+  from Blog B
+  left outer join Author A on B.author_id = A.id
+  left outer join Author CA on B.co_author_id = CA.id
+  where B.id = #{id}
+</select>
+重复列名时，可以重用映射列名到一个外部结果集中
+<resuleMap id="blogResult" type="Blog">
+    <id property="id" column="blog_id" />
+    <result property="title" column="blog_title" />
+    <association property="author" resultMap="authorResult"/>
+    <association property="coAuthor" resultMap="authorResult" columnPrefix="co_"/>
+</resuleMap>
+
+<resultMap id="blogResult" type="Blog">
+    <id property="id" column="blog_id" />
+    <result property="title" column="blog_title" />
+    <association property="author" javaType="Author">
+        <id property="id" column="author_id" />
+        <result property="username" column="author_username" />
+        <result property="password" column="author_password" />
+        <result property="email" column="author_email" />
+        <result property="bio" column="author_bio" />
+    </association>
+</resultMap>
+-->

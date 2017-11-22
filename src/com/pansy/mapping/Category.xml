@@ -8,11 +8,11 @@
         <!--select * from category_-->
     <!--</select>-->
 
-    <insert id="addCategory" parameterType="Category">
+    <insert id="addCategory" parameterType="category">
         insert into category_(name) values(#{name})
     </insert>
 
-    <delete id="deleteCategory" parameterType="Category">
+    <delete id="deleteCategory" parameterType="category">
         delete from category_ where id = #{id}
     </delete>
 
