@@ -3,83 +3,143 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<resultMap id="detailedBlogResultMap" type="Blog">
-    <constructor>
-        <idArg column="blog_id" javaType="int"/>
-        <arg column="username" javaType="string" />
-    </constructor>
-    <result property="title" column="blog_title" />
-    <association property="author" javaType="author">
-        <id property="id" column="author_id" />
-        <result property="username" column="author_name" />
-        <result property="email" column="author_email" />
-        <result property="bio" column="author_bio" />
-        <result property="favouriteSection" column="author_favourite_section" />
-    </association>
-    <collection></collection>
-</resultMap>
+<mapper>
+    <resultMap id="detailedBlogResultMap" type="Blog">
+        <constructor>
+            <idArg column="blog_id" javaType="int"/>
+            <arg column="username" javaType="string"/>
+        </constructor>
+        <result property="title" column="blog_title"/>
+        <association property="author" javaType="author">
+            <id property="id" column="author_id"/>
+            <result property="username" column="author_name"/>
+            <result property="email" column="author_email"/>
+            <result property="bio" column="author_bio"/>
+            <result property="favouriteSection" column="author_favourite_section"/>
+        </association>
+        <collection property="posts" ofType="Post">
+            <id property="id" column="post_id"/>
+            <result property="subject" column="post_subject"/>
+            <association property="author" column="post_author"/>
+            <collection property="comments" ofType="Comment">
+                <id property="id" column="comment_id"/>
+            </collection>
+            <collection property="tags" ofType="Tag">
+                <id property="id" column="tag_id"/>
+            </collection>
+            <discriminator javaType="int" column="draft">
+                <case value="1" resultType="DraftPost"/>
+            </discriminator>
+        </collection>
+    </resultMap>
 
-<!-- 嵌套查询
-<resultMap id="blogResult" type="Blog">
-    <association property="author" column="author_id" javaType="Author" select="selectAuthor" />
-</resultMap>
+    <!-- 鉴别器，类似于java中的switch-->
+    <resultMap id="vehicleResult" type="Vehicle">
+        <id property="id" column="id"/>
+        <result property="vin" column="vin"/>
+        <result property="year" column="year"/>
+        <result property="make" column="make"/>
+        <result property="model" column="model"/>
+        <result property="color" column="color"/>
+        <discriminator javaType="int" column="vehicle_type">
+            <case value="1" resultMap="carResult"/>
+            <case value="2" resultMap="truckResult"/>
+            <case value="3" resultMap="vanResult"/>
+            <case value="4" resultMap="suvResult"/>
+        </discriminator>
+    </resultMap>
+    <!-- 如果匹配任何一个鉴别器的实例，那么就使用这个实例指定的结果映射，换句话说，其余的结果映射都被忽略，如果没有一个实例相匹配，就仅仅使用
+    鉴定器外的结果映射，所以如果要加载除了以下doorCount属性外的其他属性，就需要加extends-->
+    <resultMap id="catResult" type="Car" extends="vehicleResult">
+        <result property="doorCount" column="door_count"/>
+    </resultMap>
+    <!-- 或者使用如下这个映射风格也可以达到同样的效果-->
+    <resultMap id="vehicleResult" type="Vehicle">
+        <id property="id" column="id" />
+        <result property="vin" column="vin" />
+        <result property="year" column="year" />
+        <result property="make" column="make" />
+        <result property="model" column="model" />
+        <result property="color" column="color" />
+        <discriminator javaType="int" column="vehicle_type">
+            <case value="1" resultType="carResult">
+                <result property="doorCount" column="door_count" />
+            </case>
+            <case value="2" resultType="truckResult">
+                <result property="boxSize" column="box_size" />
+                <result property="extendedCab" column="extended_cab" />
+            </case>
+            <case value="3" resultType="vanResult">
+                <result property="powerSlidingDoor" column="power_sliding_door" />
+            </case>
+            <case value="4" resultType="suvResult">
+                <result property="allWhereDrive" column="all_wheel_drive" />
+            </case>
+        </discriminator>
+    </resultMap>
+</mapper>
 
-<select id="selectAuthor" resultType="Author">
-  select * from author where id = #{id}
-</select>
--->
+        <!-- 嵌套查询
+        <resultMap id="blogResult" type="Blog">
+            <association property="author" column="author_id" javaType="Author" select="selectAuthor" />
+        </resultMap>
 
-<!-- 嵌套结果
-<resultMap id="blogResult" type="Blog">
-    <id property="id" column="blog_id" />
-    <result property="title" column="blog_title" />
-    <association property="author" column="blog_author_id" javaType="Author" resultMap="authorResult" />
-</resultMap>
+        <select id="selectAuthor" resultType="Author">
+          select * from author where id = #{id}
+        </select>
+        -->
 
-<resultMap id="authorResult" type="Author">
-    <id property="id" column="author_id" />
-    <result property="username" column="author_name" />
-    <result property="password" column="author_password" />
-    <result property="email" column="author_email" />
-    <result property="bio" column="author_bio" />
-</resultMap>
+        <!-- 嵌套结果
+        <resultMap id="blogResult" type="Blog">
+            <id property="id" column="blog_id" />
+            <result property="title" column="blog_title" />
+            <association property="author" column="blog_author_id" javaType="Author" resultMap="authorResult" />
+        </resultMap>
 
-<select id="selectBlog" resultMap="blogResult">
-  select
-    B.id            as blog_id,
-    B.title         as blog_title,
-    A.id            as author_id,
-    A.username      as author_username,
-    A.password      as author_password,
-    A.email         as author_email,
-    A.bio           as author_bio,
-    CA.id           as co_author_id,
-    CA.username     as co_author_username,
-    CA.password     as co_author_password,
-    CA.email        as co_author_email,
-    CA.bio          as co_author_bio
-  from Blog B
-  left outer join Author A on B.author_id = A.id
-  left outer join Author CA on B.co_author_id = CA.id
-  where B.id = #{id}
-</select>
-重复列名时，可以重用映射列名到一个外部结果集中
-<resuleMap id="blogResult" type="Blog">
-    <id property="id" column="blog_id" />
-    <result property="title" column="blog_title" />
-    <association property="author" resultMap="authorResult"/>
-    <association property="coAuthor" resultMap="authorResult" columnPrefix="co_"/>
-</resuleMap>
+        <resultMap id="authorResult" type="Author">
+            <id property="id" column="author_id" />
+            <result property="username" column="author_name" />
+            <result property="password" column="author_password" />
+            <result property="email" column="author_email" />
+            <result property="bio" column="author_bio" />
+        </resultMap>
 
-<resultMap id="blogResult" type="Blog">
-    <id property="id" column="blog_id" />
-    <result property="title" column="blog_title" />
-    <association property="author" javaType="Author">
-        <id property="id" column="author_id" />
-        <result property="username" column="author_username" />
-        <result property="password" column="author_password" />
-        <result property="email" column="author_email" />
-        <result property="bio" column="author_bio" />
-    </association>
-</resultMap>
--->
+        <select id="selectBlog" resultMap="blogResult">
+          select
+            B.id            as blog_id,
+            B.title         as blog_title,
+            A.id            as author_id,
+            A.username      as author_username,
+            A.password      as author_password,
+            A.email         as author_email,
+            A.bio           as author_bio,
+            CA.id           as co_author_id,
+            CA.username     as co_author_username,
+            CA.password     as co_author_password,
+            CA.email        as co_author_email,
+            CA.bio          as co_author_bio
+          from Blog B
+          left outer join Author A on B.author_id = A.id
+          left outer join Author CA on B.co_author_id = CA.id
+          where B.id = #{id}
+        </select>
+        重复列名时，可以重用映射列名到一个外部结果集中
+        <resuleMap id="blogResult" type="Blog">
+            <id property="id" column="blog_id" />
+            <result property="title" column="blog_title" />
+            <association property="author" resultMap="authorResult"/>
+            <association property="coAuthor" resultMap="authorResult" columnPrefix="co_"/>
+        </resuleMap>
+
+        <resultMap id="blogResult" type="Blog">
+            <id property="id" column="blog_id" />
+            <result property="title" column="blog_title" />
+            <association property="author" javaType="Author">
+                <id property="id" column="author_id" />
+                <result property="username" column="author_username" />
+                <result property="password" column="author_password" />
+                <result property="email" column="author_email" />
+                <result property="bio" column="author_bio" />
+            </association>
+        </resultMap>
+        -->
