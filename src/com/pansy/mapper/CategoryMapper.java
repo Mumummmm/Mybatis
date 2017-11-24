@@ -21,4 +21,7 @@ public interface CategoryMapper {
             @Result(property = "products", javaType = List.class, column = "id", many = @Many(select = "com.pansy.mapper.ProductMapper.listByCategory"))
     })
     List<Category> list();
+
+    @Select("select * from category_ limit #{start}, #{count}")
+    List<Category> listByPage(@Param("start") int start, @Param("count") int count);
 }
