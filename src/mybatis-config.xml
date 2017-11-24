@@ -6,6 +6,7 @@
     <settings>
         <setting name="lazyLoadingEnabled" value="true" />
         <setting name="aggressiveLazyLoading" value="false" />
+        <setting name="cacheEnabled" value="true" />
     </settings>
     <typeAliases>
         <package name="com.pansy.pojo"></package>
@@ -30,7 +31,7 @@
         <mapper resource="com/pansy/mapping/Order.xml" />
         <mapper resource="com/pansy/mapping/OrderItem.xml"/>
         <!-- annotation way -->
-        <mapper class="com.pansy.mapper.CategoryMapper" />
+        <!--<mapper class="com.pansy.mapper.CategoryMapper" />-->
         <mapper class="com.pansy.mapper.ProductMapper" />
         <mapper class="com.pansy.mapper.OrderItemMapper" />
         <mapper class="com.pansy.mapper.OrderMapper" />
